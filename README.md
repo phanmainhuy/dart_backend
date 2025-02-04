@@ -16,6 +16,8 @@ in `lib/`, and example unit test in `test/`.
 
 ## Run server:
 - **nodemon --exec "dart run lib/server.dart" --ext dart**
+- **npm run dev**
+- **yarn dev**
 
 ## Test server: 
 - **curl http://localhost:8080/**
