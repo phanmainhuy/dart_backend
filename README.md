@@ -21,3 +21,6 @@ in `lib/`, and example unit test in `test/`.
 
 ## Test server: 
 - **curl http://localhost:8080/**
+
+## Build model:
+- **dart run build_runner build** || **make build**

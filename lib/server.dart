@@ -1,10 +1,12 @@
 import 'dart:io';
+import 'package:dart_backend/configs/connect.dart';
 import 'package:dart_backend/routes/routes.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as io;
 
 void main() async {
-  final appRoutes = AppRoutes();
+  final connection = await connectToDatabase();
+  final appRoutes = AppRoutes(connection);
 
   // Middleware + Handler
   var handler =
