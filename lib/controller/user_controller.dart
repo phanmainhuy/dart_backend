@@ -16,7 +16,7 @@ class UserController {
   Future<Response> getUsers(Request request) async {
     try {
       var results = await connection.query(
-          'SELECT id_user, role, name, mobile, email, birthday, gender, address, avatar, password FROM user WHERE deleted IS NULL');
+          'SELECT id, role, name, mobile, email, birthday, gender, address, avatar, password FROM user WHERE deleted IS NULL');
 
       List<UserModel> users =
           results.map((row) => UserModel.fromRow(row)).toList();
@@ -50,7 +50,7 @@ class UserController {
       }
 
       var result = await connection.query(
-        'SELECT id_user, role, name, mobile, email, birthday, gender, address, avatar, password FROM user WHERE email = ? AND deleted IS NULL',
+        'SELECT id, role, name, mobile, email, birthday, gender, address, avatar, password FROM user WHERE email = ? AND deleted IS NULL',
         [email],
       );
 
@@ -86,7 +86,7 @@ class UserController {
       final String password = payload['password'];
 
       var result = await connection.query(
-          'SELECT id_user, role, name, mobile, email, birthday, gender, address, avatar, password FROM user WHERE email = ? AND deleted IS NULL',
+          'SELECT id, role, name, mobile, email, birthday, gender, address, avatar, password FROM user WHERE email = ? AND deleted IS NULL',
           [email]);
 
       if (result.isEmpty) {
@@ -117,7 +117,7 @@ class UserController {
 
       // Add a fake JWT token
       response['token'] = JwtHelper.generateJwt(
-        userId: user.idUser.toString(),
+        userId: user.id.toString(),
         role: user.role.toString(),
       );
 
@@ -141,14 +141,10 @@ class UserController {
       final String email = payload['email'];
       final String password = payload['password'];
       final String mobile = payload['mobile'];
-      final String birthday = payload['birthday'];
-      final String gender = payload['gender'];
-      final String address = payload['address'];
-      final String avatar = payload['avatar'];
 
       // Check if email already exists
       var existingUser = await connection.query(
-        'SELECT id_user FROM user WHERE email = ? AND deleted IS NULL',
+        'SELECT id FROM user WHERE email = ? AND deleted IS NULL',
         [email],
       );
 
@@ -164,18 +160,14 @@ class UserController {
 
       // Insert new user
       var result = await connection.query(
-        '''INSERT INTO user (name, email, password, mobile, birthday, gender, address, avatar) 
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        '''INSERT INTO user (name, email, password, mobile) 
+          VALUES (?, ?, ?, ?)
         ''',
         [
           name,
           email,
           hashedPassword,
           mobile,
-          birthday,
-          gender,
-          address,
-          avatar,
         ],
       );
 
@@ -187,7 +179,7 @@ class UserController {
       }
       // Retrieve the inserted user
       var newUser = await connection.query(
-        'SELECT id_user, role, name, mobile, email, birthday, gender, address, avatar, password FROM user WHERE email = ?',
+        'SELECT id, role, name, mobile, email, birthday, gender, address, avatar, password FROM user WHERE email = ?',
         [email],
       );
 
@@ -225,14 +217,10 @@ class UserController {
       final String email = payload['email'];
       final String? password = payload['password']; // Password is optional
       final String mobile = payload['mobile'];
-      final String birthday = payload['birthday'];
-      final String gender = payload['gender'];
-      final String address = payload['address'];
-      final String avatar = payload['avatar'];
 
       // Check if the user exists
       var existingUser = await connection.query(
-        'SELECT id_user FROM user WHERE email = ? AND deleted IS NULL',
+        'SELECT id FROM user WHERE email = ? AND deleted IS NULL',
         [email],
       );
 
@@ -250,14 +238,10 @@ class UserController {
         name,
         email,
         mobile,
-        birthday,
-        gender,
-        address,
-        avatar
       ];
       String updateQuery = '''
-      UPDATE user SET name = ?, email = ?, mobile = ?, birthday = ?, gender = ?, address = ?, avatar = ?
-    ''';
+        UPDATE user SET name = ?, email = ?, mobile = ? 
+      ''';
 
       // If password is provided, hash it and update
       if (password != null && password.isNotEmpty) {
@@ -266,22 +250,22 @@ class UserController {
         updateValues.add(hashedPassword);
       }
 
-      updateQuery += ' WHERE id_user = ?';
+      updateQuery += ' WHERE id = ?';
       updateValues.add(userId);
 
       // Execute the update query
       var result = await connection.query(updateQuery, updateValues);
 
-      if (result.affectedRows == 0) {
-        return ApiResponse.error(
-          statusCode: 500,
-          message: 'User update failed',
-        );
-      }
+      // if (result.affectedRows == 0) {
+      //   return ApiResponse.error(
+      //     statusCode: 500,
+      //     message: 'User update failed',
+      //   );
+      // }
 
       // Retrieve updated user
       var updatedUser = await connection.query(
-        'SELECT id_user, role, name, mobile, email, birthday, gender, address, avatar, password FROM user WHERE email = ?',
+        'SELECT id, role, name, mobile, email, birthday, gender, address, avatar, password FROM user WHERE email = ?',
         [email],
       );
 
@@ -315,22 +299,29 @@ class UserController {
       bool deleteStatus = false;
       final payload = jsonDecode(await request.readAsString());
 
-      final String email = payload['email'];
+      final String userID = payload['user_id'];
 
       var result = await connection.query(
         '''
           UPDATE user SET deleted = 1 
-          WHERE email = ?
+          WHERE id = ?
         ''',
-        [email],
+        [userID],
       );
 
       if (result.affectedRows != 0) {
         deleteStatus = true;
       }
 
+      if (!deleteStatus) {
+        return ApiResponse.error(
+          statusCode: 400,
+          message: 'Delete user failed',
+        );
+      }
+
       Map<String, dynamic> response = {
-        'email': email,
+        'user_id': userID,
         'status': deleteStatus,
       };
 

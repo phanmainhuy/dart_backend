@@ -4,8 +4,8 @@ part 'user_model.g.dart';
 
 @JsonSerializable()
 class UserModel {
-  @JsonKey(name: 'id_user')
-  final int idUser;
+  @JsonKey(name: 'id')
+  final int id;
   final int role;
   final String? name;
   final String? mobile;
@@ -17,7 +17,7 @@ class UserModel {
   final String? password;
 
   UserModel({
-    required this.idUser,
+    required this.id,
     required this.role,
     this.name,
     this.mobile,
@@ -32,7 +32,7 @@ class UserModel {
   // Convert from database row to model
   factory UserModel.fromRow(List<dynamic> row) {
     return UserModel(
-      idUser: row[0] as int,
+      id: row[0] as int,
       role: row[1] as int,
       name: row[2] as String?,
       mobile: row[3] as String?,
