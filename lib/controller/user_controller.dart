@@ -16,7 +16,7 @@ class UserController {
   Future<Response> getUsers(Request request) async {
     try {
       var results = await connection.query(
-          'SELECT id, role, name, mobile, email, birthday, gender, address, avatar, password FROM user WHERE deleted IS NULL');
+          'SELECT id, role, name, mobile, email, birthday, gender, address, avatar, password FROM user WHERE deleted IS NULL ORDER BY id DESC');
 
       List<UserModel> users =
           results.map((row) => UserModel.fromRow(row)).toList();

@@ -10,11 +10,7 @@ CategoryModel _$CategoryModelFromJson(Map<String, dynamic> json) =>
     CategoryModel(
       id: (json['id'] as num).toInt(),
       name: json['name'] as String,
-      iconUrl: json['iconUrl'] as String,
-      deleted: json['deleted'] as bool?,
-      deletedAt: json['deletedAt'] == null
-          ? null
-          : DateTime.parse(json['deletedAt'] as String),
+      iconUrl: json['iconUrl'] as String?,
     );
 
 Map<String, dynamic> _$CategoryModelToJson(CategoryModel instance) =>
@@ -22,6 +18,4 @@ Map<String, dynamic> _$CategoryModelToJson(CategoryModel instance) =>
       'id': instance.id,
       'name': instance.name,
       'iconUrl': instance.iconUrl,
-      'deleted': instance.deleted,
-      'deletedAt': instance.deletedAt?.toIso8601String(),
     };
