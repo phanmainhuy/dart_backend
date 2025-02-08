@@ -84,7 +84,7 @@ class CartController {
         );
       }
 
-      if (quantity <= 1) {
+      if (quantity < 1) {
         // DELETE the cart_detail if quantity is 0 or less
         await connection.query("""
         DELETE cd
@@ -136,13 +136,6 @@ class CartController {
         SET quantity = ?
         WHERE cart_id = ? AND drink_id = ?
       """, [quantity, cartID, drinkID]);
-
-        if (resultUpdate.affectedRows == 0) {
-          return ApiResponse.error(
-            statusCode: 500,
-            message: 'Update failed',
-          );
-        }
 
         // Recalculate the cart details
         var updatedResults = await connection.query("""
